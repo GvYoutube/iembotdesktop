@@ -55,7 +55,7 @@ jobs:
           sudo chmod +x /usr/local/bin/iembot-desktop
 
           # 2. Install icon image globally so desktop launchers can read it
-          sudo cp iembot-desktop.png /usr/share/pixmaps/iembot-desktop.png
+          sudo cp ../icon.png /usr/share/pixmaps/iembot-desktop.png
 
           # 3. Define the shortcut file contents
           DESKTOP_ENTRY="[Desktop Entry]
