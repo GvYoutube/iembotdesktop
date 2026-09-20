@@ -1,0 +1,46 @@
+name: Build and Release Linux Binary
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers when you push tags like v1.0.0, v1.0.1, etc.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install System Dependencies for Qt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxcb-cursor0 libxkbcommon-x11-0 libgl1-mesa-glx
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller requests PyQt6
+
+      - name: Build Binary with PyInstaller
+        run: |
+          pyinstaller --noconfirm --onefile --windowed \
+            --add-data "src/snd/alert.mp3:src/snd" \
+            --add-data "src/icon.png:src" \
+            --name "iembot-desktop" \
+            src/main.py
+
+      - name: Create Release and Upload Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/iembot-desktop
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
