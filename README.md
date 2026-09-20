@@ -1,4 +1,7 @@
 # iembotdesktop
+
+<img width="930" height="658" alt="image" src="https://github.com/user-attachments/assets/2f8efdca-7fea-43ac-911d-61e3dc548ba8" />
+
 Unofficial IEMBot desktop client. Written in Python.
 
 
