@@ -1,4 +1,4 @@
-name: Build and Push Linux Installer
+name: Build Single-File Linux Installer
 
 on:
   workflow_dispatch:
@@ -19,46 +19,82 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Dependencies
+      - name: Install System Dependencies for Qt & Makeself
         run: |
           sudo apt-get update
-          sudo apt-get install -y libxcb-cursor0 libxkbcommon-x11-0 libgl1 libglib2.0-0 makeself
-          
+          sudo apt-get install -y libxcb-cursor0 libxkbcommon-x11-0 libgl1 libglib2.0-0 xdg-utils makeself
+
       - name: Install Python Packages
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller requests PyQt6
 
-      - name: Build PyInstaller Binary
+      - name: Locate Assets and Build PyInstaller Binary
         run: |
-          pyinstaller --noconfirm --onefile --windowed \
-            --add-data "src/snd/alert.mp3:src/snd" \
-            --add-data "icon.png" \
-            --name "iembot-desktop" \
-            src/main.py
+          # 1. Dynamically locate icon.png whether it's in root or src/
+          if [ -f "src/icon.png" ]; then
+            ICON_SRC="src/icon.png"
+          elif [ -f "icon.png" ]; then
+            ICON_SRC="icon.png"
+          else
+            echo "ERROR: Could not find icon.png anywhere in the repo!"
+            exit 1
+          fi
 
-      - name: Assemble Package Dir & Install Script
+          # 2. Dynamically locate alert.mp3 whether it's in src/snd/ or snd/
+          if [ -f "src/snd/alert.mp3" ]; then
+            SOUND_SRC="src/snd/alert.mp3"
+          elif [ -f "snd/alert.mp3" ]; then
+            SOUND_SRC="snd/alert.mp3"
+          else
+            echo "ERROR: Could not find alert.mp3 anywhere in the repo!"
+            exit 1
+          fi
+
+          # 3. Locate main.py
+          if [ -f "src/main.py" ]; then
+            MAIN_SCRIPT="src/main.py"
+          else
+            MAIN_SCRIPT="main.py"
+          fi
+
+          echo "Using Icon: $ICON_SRC"
+          echo "Using Sound: $SOUND_SRC"
+          echo "Using Script: $MAIN_SCRIPT"
+
+          # 4. Build single-file executable
+          pyinstaller --noconfirm --onefile --windowed \
+            --add-data "${SOUND_SRC}:snd" \
+            --add-data "${ICON_SRC}:." \
+            --name "iembot-desktop" \
+            "$MAIN_SCRIPT"
+
+          # Store the found icon path for the makeself stage
+          echo "FOUND_ICON=$ICON_SRC" >> $GITHUB_ENV
+
+      - name: Assemble Package Directory
         run: |
           mkdir -p pkg_dir
           
-          # Copy the compiled binary and the raw icon image
+          # Copy binary and icon file into staging directory
           cp dist/iembot-desktop pkg_dir/
-          # Added due to it saying that it couldn't find the icon in src, despite it's not in src.
-          cp icon.png pkg_dir/iembot-desktop.png
+          cp "$FOUND_ICON" pkg_dir/iembot-desktop.png
 
-          # Create install script executed by makeself
+          # Write install script executed by makeself upon extraction
           cat << 'EOF' > pkg_dir/install.sh
           #!/bin/bash
+          set -e
+
           echo "Installing IEMBot Desktop..."
 
-          # 1. Install binary globally
+          # Install binary globally
           sudo cp iembot-desktop /usr/local/bin/iembot-desktop
           sudo chmod +x /usr/local/bin/iembot-desktop
 
-          # 2. Install icon image globally so desktop launchers can read it
-          sudo cp ../icon.png /usr/share/pixmaps/iembot-desktop.png
+          # Install icon globally
+          sudo cp iembot-desktop.png /usr/share/pixmaps/iembot-desktop.png
 
-          # 3. Define the shortcut file contents
+          # Construct desktop entry
           DESKTOP_ENTRY="[Desktop Entry]
           Name=IEMBot Desktop
           Comment=NWS IEMBot Chat Client
@@ -68,26 +104,25 @@ jobs:
           Type=Application
           Categories=Network;Utility;"
 
-          # 4. Install into system application menu
+          # Install to system application menu
           echo "$DESKTOP_ENTRY" | sudo tee /usr/share/applications/iembot-desktop.desktop > /dev/null
 
-          # 5. Drop shortcut directly onto the active user's Desktop screen (if directory exists)
+          # Drop desktop shortcut on user's Desktop screen if folder exists
           USER_DESKTOP=$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")
 
           if [ -d "$USER_DESKTOP" ]; then
               echo "$DESKTOP_ENTRY" > "$USER_DESKTOP/iembot-desktop.desktop"
               chmod +x "$USER_DESKTOP/iembot-desktop.desktop"
-              
-              # Trust shortcut (required for GNOME/KDE double-click launching)
               gio trust "$USER_DESKTOP/iembot-desktop.desktop" 2>/dev/null || true
               echo "Desktop shortcut created at: $USER_DESKTOP/iembot-desktop.desktop"
           fi
 
-          echo "Installation complete!"
+          echo "Installation complete! You can open IEMBot Desktop from your app menu or desktop shortcut."
           EOF
+
           chmod +x pkg_dir/install.sh
 
-      - name: Generate Self-Extracting Installer
+      - name: Generate Self-Extracting .run Installer
         run: |
           makeself pkg_dir iembot-desktop-installer.run "IEMBot Desktop Installer" ./install.sh
 
