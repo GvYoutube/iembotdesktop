@@ -1,9 +1,10 @@
-name: Build and Release Linux Binary
+name: Build and Push Linux Installer
 
 on:
+  workflow_dispatch:
   push:
     tags:
-      - 'v*'  # Triggers when you push tags like v1.0.0, v1.0.1, etc.
+      - 'v*'
 
 jobs:
   build:
@@ -18,17 +19,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install System Dependencies for Qt
+      - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libxcb-cursor0 libxkbcommon-x11-0 libgl1-mesa-glx
+          sudo apt-get install -y libxcb-cursor0 libxkbcommon-x11-0 libgl1-mesa-glx makeself
 
-      - name: Install Python Dependencies
+      - name: Install Python Packages
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller requests PyQt6
 
-      - name: Build Binary with PyInstaller
+      - name: Build PyInstaller Binary
         run: |
           pyinstaller --noconfirm --onefile --windowed \
             --add-data "src/snd/alert.mp3:src/snd" \
@@ -36,10 +37,63 @@ jobs:
             --name "iembot-desktop" \
             src/main.py
 
-      - name: Create Release and Upload Asset
-        uses: softprops/action-gh-release@v1
+      - name: Assemble Package Dir & Install Script
+        run: |
+          mkdir -p pkg_dir
+          
+          # Copy the compiled binary and the raw icon image
+          cp dist/iembot-desktop pkg_dir/
+          cp icon.png pkg_dir/iembot-desktop.png
+
+          # Create install script executed by makeself
+          cat << 'EOF' > pkg_dir/install.sh
+          #!/bin/bash
+          echo "Installing IEMBot Desktop..."
+
+          # 1. Install binary globally
+          sudo cp iembot-desktop /usr/local/bin/iembot-desktop
+          sudo chmod +x /usr/local/bin/iembot-desktop
+
+          # 2. Install icon image globally so desktop launchers can read it
+          sudo cp iembot-desktop.png /usr/share/pixmaps/iembot-desktop.png
+
+          # 3. Define the shortcut file contents
+          DESKTOP_ENTRY="[Desktop Entry]
+          Name=IEMBot Desktop
+          Comment=NWS IEMBot Chat Client
+          Exec=/usr/local/bin/iembot-desktop
+          Icon=/usr/share/pixmaps/iembot-desktop.png
+          Terminal=false
+          Type=Application
+          Categories=Network;Utility;"
+
+          # 4. Install into system application menu
+          echo "$DESKTOP_ENTRY" | sudo tee /usr/share/applications/iembot-desktop.desktop > /dev/null
+
+          # 5. Drop shortcut directly onto the active user's Desktop screen (if directory exists)
+          USER_DESKTOP=$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")
+
+          if [ -d "$USER_DESKTOP" ]; then
+              echo "$DESKTOP_ENTRY" > "$USER_DESKTOP/iembot-desktop.desktop"
+              chmod +x "$USER_DESKTOP/iembot-desktop.desktop"
+              
+              # Trust shortcut (required for GNOME/KDE double-click launching)
+              gio trust "$USER_DESKTOP/iembot-desktop.desktop" 2>/dev/null || true
+              echo "Desktop shortcut created at: $USER_DESKTOP/iembot-desktop.desktop"
+          fi
+
+          echo "Installation complete!"
+          EOF
+          chmod +x pkg_dir/install.sh
+
+      - name: Generate Self-Extracting Installer
+        run: |
+          makeself pkg_dir iembot-desktop-installer.run "IEMBot Desktop Installer" ./install.sh
+
+      - name: Publish Release Asset
+        uses: softprops/action-gh-release@v2
         with:
-          files: dist/iembot-desktop
+          files: iembot-desktop-installer.run
           draft: false
           prerelease: false
         env:
