@@ -49,37 +49,39 @@ jobs:
 
           echo "Installing IEMBot Desktop..."
 
-          # Install binary globally
+          # 1. Install binary and FORCE executable permissions on the target file
           sudo cp iembot-desktop /usr/local/bin/iembot-desktop
-          sudo chmod +x /usr/local/bin/iembot-desktop
+          sudo chmod 755 /usr/local/bin/iembot-desktop
 
-          # Install icon globally
+          # 2. Install icon to standard pixmaps directory
+          sudo mkdir -p /usr/share/pixmaps
           sudo cp iembot-desktop.png /usr/share/pixmaps/iembot-desktop.png
+          sudo chmod 644 /usr/share/pixmaps/iembot-desktop.png
 
-          # Construct desktop entry
+          # 3. Construct desktop entry with absolute Icon path
           DESKTOP_ENTRY="[Desktop Entry]
           Name=IEMBot Desktop
-          Comment=Unofficial IEMBot client
+          Comment=NWS IEMBot Chat Client
           Exec=/usr/local/bin/iembot-desktop
           Icon=/usr/share/pixmaps/iembot-desktop.png
           Terminal=false
           Type=Application
           Categories=Network;Utility;"
 
-          # Install to system application menu
+          # 4. Install desktop shortcut to applications menu
           echo "$DESKTOP_ENTRY" | sudo tee /usr/share/applications/iembot-desktop.desktop > /dev/null
+          sudo chmod 644 /usr/share/applications/iembot-desktop.desktop
 
-          # Drop desktop shortcut on user's Desktop screen if folder exists
+          # 5. Drop shortcut on the user's Desktop screen
           USER_DESKTOP=$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")
 
           if [ -d "$USER_DESKTOP" ]; then
               echo "$DESKTOP_ENTRY" > "$USER_DESKTOP/iembot-desktop.desktop"
               chmod +x "$USER_DESKTOP/iembot-desktop.desktop"
               gio trust "$USER_DESKTOP/iembot-desktop.desktop" 2>/dev/null || true
-              echo "Desktop shortcut created at: $USER_DESKTOP/iembot-desktop.desktop"
           fi
 
-          echo "Installation complete! You can open IEMBot Desktop from your app menu or desktop shortcut."
+          echo "Installation complete!"
           EOF
 
           chmod +x pkg_dir/install.sh
