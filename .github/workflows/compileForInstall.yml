@@ -43,7 +43,8 @@ jobs:
           
           # Copy the compiled binary and the raw icon image
           cp dist/iembot-desktop pkg_dir/
-          cp icon.png pkg_dir/iembot-desktop.png
+          # Added due to it saying that it couldn't find the icon in src, despite it's not in src.
+          cp /home/runner/work/iembotdesktop/icon.png pkg_dir/iembot-desktop.png
 
           # Create install script executed by makeself
           cat << 'EOF' > pkg_dir/install.sh
