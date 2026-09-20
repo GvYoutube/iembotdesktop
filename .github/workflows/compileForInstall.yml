@@ -91,6 +91,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'new' }}
+          repo: iembotdesktop
+          owner: GvYoutube
           name: ${{ github.ref_type == 'tag' && github.ref_name || 'IEMBot Desktop Release' }}
           files: iembot-desktop-installer.run
           draft: false
