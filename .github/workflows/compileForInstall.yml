@@ -65,7 +65,7 @@ jobs:
           # 4. Build single-file executable
           pyinstaller --noconfirm --onefile --windowed \
             --add-data "${SOUND_SRC}:snd" \
-            --add-data "${ICON_SRC}:." \
+            --add-data "/home/runner/work/iembotdesktop/iembotdesktop/icon.png" \
             --name "iembot-desktop" \
             "$MAIN_SCRIPT"
 
