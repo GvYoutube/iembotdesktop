@@ -9,6 +9,6 @@ IEMBot Desktop will only be available on Linux as coding for Windows is much har
 
 # Requirements
 Linux
-Python
+Python, with pyqt6
 
 (Optional for alert audio: Speakers)

@@ -14,4 +14,5 @@ ENV/
 .idea/
 
 # this doesnt exist in linux but i have to add this for no reason, and here i am writing a stupid comment about it. lol
+# what the hell even is a dynamic store? mac users can go shove this stupid .DS_Store file up their ass.
 .DS_Store
