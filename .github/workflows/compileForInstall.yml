@@ -39,7 +39,7 @@ jobs:
           
           # Copy binary and icon file into staging directory
           cp dist/iembot-desktop pkg_dir/
-          cp "$FOUND_ICON" pkg_dir/iembot-desktop.png
+          cp src/icon.png pkg_dir/iembot-desktop.png
 
           # Write install script executed by makeself upon extraction
           cat << 'EOF' > pkg_dir/install.sh
