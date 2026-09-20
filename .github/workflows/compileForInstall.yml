@@ -32,8 +32,9 @@ jobs:
       - name: Build PyInstaller Binary
         run: |
           pyinstaller --noconfirm --onefile --windowed \
-            --add-data="src/snd/alert.mp3":snd \
-            --add-data="src/icon.png":. \
+            --add-data=src/snd/alert.mp3:snd \
+            --add-data=src/icon.png:src \
+            --add-data=icon.png:..
             --name="iembot-desktop" \
             src/main.py
             
@@ -62,7 +63,7 @@ jobs:
           # Construct desktop entry
           DESKTOP_ENTRY="[Desktop Entry]
           Name=IEMBot Desktop
-          Comment=NWS IEMBot Chat Client
+          Comment=Unofficial IEMBot client
           Exec=/usr/local/bin/iembot-desktop
           Icon=/usr/share/pixmaps/iembot-desktop.png
           Terminal=false
