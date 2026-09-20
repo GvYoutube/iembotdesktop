@@ -73,7 +73,7 @@ class IEMBotWorker(QThread):
 class IEMBotWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QIcon("src/icon.png"))
         self.setWindowTitle("IEMBot Desktop")
         self.resize(800, 500)
 
