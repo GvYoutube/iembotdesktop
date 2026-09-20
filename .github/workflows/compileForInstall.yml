@@ -31,7 +31,7 @@ jobs:
 
       - name: Build PyInstaller Binary
         run: |
-          pyinstaller --noconfirm --onefile --windowed --add-data='src/:src/' --add-data='../icon.png:..' --name='iembot-desktop' src/main.py
+          pyinstaller installer.spec
             
       - name: Assemble Package Directory
         run: |
