@@ -32,8 +32,8 @@ jobs:
       - name: Build PyInstaller Binary
         run: |
           pyinstaller --noconfirm --onefile --windowed \
-            --add-data="src/snd/alert.mp3:snd" \
-            --add-data="src/icon.png:." \
+            --add-data="src/snd/alert.mp3":snd \
+            --add-data="src/icon.png":. \
             --name="iembot-desktop" \
             src/main.py
             
