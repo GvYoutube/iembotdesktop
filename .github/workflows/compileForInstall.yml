@@ -90,8 +90,10 @@ jobs:
       - name: Publish Release Asset
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'new' }}
+          name: ${{ github.ref_type == 'tag' && github.ref_name || 'IEMBot Desktop Release' }}
           files: iembot-desktop-installer.run
           draft: false
-          prerelease: false
+          prerelease: ${{ github.ref_type != 'tag' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
