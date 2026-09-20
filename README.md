@@ -11,7 +11,7 @@ Licensed with MIT, all credits go to the original IEMBot developers.
 
 To install, grab the latest release from the [releases](https://github.com/GvYoutube/iembotdesktop/releases/tag/new).
 Run `chmod +x iembot*` to make it executable.
-Then, run `sudo ./iembot*` to begin installation.
+Then, run `sudo ./iembot* --keep` to begin installation.
 
 ### Notice:
 
