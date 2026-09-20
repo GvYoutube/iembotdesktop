@@ -1,0 +1,17 @@
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# env
+.venv/
+env/
+venv/
+ENV/
+
+# vscode/ide
+.vscode/
+.idea/
+
+# this doesnt exist in linux but i have to add this for no reason, and here i am writing a stupid comment about it. lol
+.DS_Store
