@@ -4,11 +4,9 @@ Unofficial IEMBot desktop client. Written in Python.
 
 Licensed with MIT, all credits go to the original IEMBot developers.
 
-# Why only Linux?
-IEMBot Desktop will only be available on Linux as coding for Windows is much harder, as of recently. But, technically, you COULD run this on Windows.
+# Installation
 
-# Requirements
-Linux
-Python, with pyqt6
+To install, grab the latest release from the releases.
+Run `chmod +x iembot*` to make it executable.
+Then, run `sudo ./iembot*` to begin installation.
 
-(Optional for alert audio: Speakers)
