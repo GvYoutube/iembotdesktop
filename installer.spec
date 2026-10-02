@@ -8,6 +8,10 @@ a = Analysis(
     binaries=[],
     datas=[
         ('src/snd/alert.mp3', 'snd'),
+        ('src/snd/errors/explode.mp3', 'errors'),
+        ('src/snd/errors/oddExplode.mp3', 'errors'),
+        ('src/snd/errors/HypLaser_Fire.ogg', 'errors'),
+        ('src/snd/errors/willhelm.mp3', 'errors'),
         ('src/icon.png', '.')
     ],
     hiddenimports=[],
