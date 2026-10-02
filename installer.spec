@@ -11,7 +11,7 @@ a = Analysis(
         ('src/snd/errors/explode.mp3', 'errors'),
         ('src/snd/errors/oddExplode.mp3', 'errors'),
         ('src/snd/errors/HypLaser_Fire.ogg', 'errors'),
-        ('src/snd/errors/willhelm.mp3', 'errors'),
+        ('src/snd/errors/wilhelm.mp3', 'errors'),
         ('src/icon.png', '.')
     ],
     hiddenimports=[],
